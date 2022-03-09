@@ -1,5 +1,6 @@
 import { Button } from './Button';
 
+
 import '../styles/sidebar.scss';
 
 interface GenreResponseProps {
@@ -11,11 +12,14 @@ interface GenreResponseProps {
 interface SideBarProps{
   genres: GenreResponseProps[];
   selectedGenreId: number;
-  handleClickButton(arg: number) : void;
+  handleClickButton: (selectedGenreId: number) => void;
 }
 
+
+
 export function SideBar(
-  { genres, 
+  { 
+    genres, 
     selectedGenreId, 
     handleClickButton
   }: SideBarProps) {

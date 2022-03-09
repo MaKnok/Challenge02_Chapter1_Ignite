@@ -1,6 +1,8 @@
-import { memo } from 'react';
+import { memo, useState, useMemo } from 'react';
+import { List, AutoSizer, ListRowRenderer } from 'react-virtualized';
 import { MovieCard } from './MovieCard';
 import { Header } from './Header'; 
+import { api } from '../services/api';
 
 import '../styles/content.scss';
 
@@ -18,14 +20,32 @@ interface MovieProps {
 
 interface ContentProps{
   selectedGenreId: number;
-  movies: MovieProps[];
 }
 
 function ContentComponent({
   selectedGenreId,
-  movies
 }: ContentProps) {
+  const [movies, setMovies] = useState<MovieProps[]>([]);
 
+  useMemo(() => {
+    api.get<MovieProps[]>(`movies/?Genre_id=${selectedGenreId}`).then(response => {
+      setMovies(response.data);
+    });
+  }, [selectedGenreId])
+
+  const rowRenderer: ListRowRenderer = ({ index, key, style }) => {
+    return(
+      <div key ={key} style={style}>
+          <MovieCard 
+            title={movies[index].Title} 
+            poster={movies[index].Poster} 
+            runtime={movies[index].Runtime} 
+            rating={movies[index].Ratings[0].Value} 
+          />
+      </div>
+      
+    );
+  }
 
   return (      
 
@@ -34,10 +54,25 @@ function ContentComponent({
         <Header selectedGenreId={selectedGenreId}></Header>
 
         <main>
+
           <div className="movies-list">
+            <AutoSizer>
+            {({width, height}) => (
+              <List
+                height={height}
+                rowHeight={340}
+                width={width}
+                overscanRowCount={5}
+                rowCount={movies.length}
+                rowRenderer={rowRenderer}
+               
+              />
+            )}
+            </AutoSizer>
+            {/*
             {movies.map(movie => (
               <MovieCard key ={movie.imdbID} title={movie.Title} poster={movie.Poster} runtime={movie.Runtime} rating={movie.Ratings[0].Value} />
-            ))}
+            ))}*/}
           </div>
         </main>
       </div>
